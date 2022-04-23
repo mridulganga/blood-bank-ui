@@ -1,5 +1,35 @@
 <script>
     import Nav from "../Nav.svelte";
+
+    let users = [];
+    let user = {};
+
+    fetch("https://demo-blood-bank-app.herokuapp.com/getAllUsers")
+        .then((response) => response.json())
+        .then(data => {users = data; console.log(data)})
+        .catch((error) => {
+            console.log(error);
+        });
+
+
+    async function createUser(){
+        console.log("creating new user")
+        console.log(user)
+
+        
+		const res = await fetch('https://demo-blood-bank-app.herokuapp.com/registerUser', {
+			method: 'POST',
+			body: JSON.stringify(user),
+            headers: {"content-type":"application/json"}
+		})
+
+		clear()
+    }
+
+    function clear(){
+        console.log("clearing form user")
+        user = {};
+    }
 </script>
 
 <main>
@@ -26,28 +56,19 @@
                         </tr>
                     </thead>
                     <tbody>
+                        {#each users as u}
                         <tr>
-                            <td>user-1</td>
-                            <td>Mridul Ganga</td>
-                            <td>mridul@gmail.com</td>
-                            <td>+91 9000000000</td>
-                            <td>123, Flat 1, Area 2, Bangalore</td>
-                            <td>user</td>
+                            <td>{u.userId}</td>
+                            <td>{u.fullName}</td>
+                            <td>{u.email}</td>
+                            <td>{u.phone}</td>
+                            <td>{u.houseNo}, {u.street}, {u.city}, {u.pin}</td>
+                            <td>{u.userType}</td>
                             <td>
                                 <button class="button is-danger">delete</button>
                             </td>
                         </tr>
-                        <tr>
-                            <td>user-2</td>
-                            <td>Admin User</td>
-                            <td>admin@gmail.com</td>
-                            <td>+91 9000000001</td>
-                            <td>129, Flat 1, Area 2, Bangalore</td>
-                            <td>admin</td>
-                            <td>
-                                <button class="button is-danger">delete</button>
-                            </td>
-                        </tr>
+                        {/each}
                     </tbody>
                 </table>
             </div>
@@ -59,35 +80,90 @@
                     <div class="card-content">
                         <div class="field">
                             <label class="label">Full Name</label>
-                            <input class="input" type="text" placeholder="Full Name"></div>
+                            <input
+                                class="input"
+                                type="text"
+                                placeholder="Full Name"
+                                bind:value={user.fullName}
+                            />
+                        </div>
                         <div class="field">
                             <label class="label">Email</label>
-                            <input class="input" type="email" placeholder="Email"></div>
+                            <input
+                                class="input"
+                                type="email"
+                                placeholder="Email"
+                                bind:value={user.email}
+                            />
+                        </div>
                         <div class="field">
                             <label class="label">Phone</label>
-                            <input class="input" type="tel" placeholder="Phone"></div>
+                            <input
+                                class="input"
+                                type="tel"
+                                placeholder="Phone"
+                                bind:value={user.phone}
+                            />
+                        </div>
                         <div class="field">
-                            <label class="label">Address</label>
-                            <textarea class="input" cols="30" rows="10" placeholder="Address"></textarea></div>
+                            <label class="label">House No</label>
+                            <input
+                                type="number"
+                                class="input"
+                                placeholder="House No"
+                                bind:value={user.houseNo}
+                            />
+                        </div>
                         <div class="field">
-                             <label class="label">User Type</label>
+                            <label class="label">Street</label>
+                            <input
+                                type="text"
+                                class="input"
+                                placeholder="Street"
+                                bind:value={user.street}
+                            />
+                        </div>
+                        <div class="field">
+                            <label class="label">City</label>
+                            <input
+                                type="text"
+                                class="input"
+                                placeholder="City"
+                                bind:value={user.city}
+                            />
+                        </div>
+                        <div class="field">
+                            <label class="label">Pin</label>
+                            <input
+                                type="number"
+                                class="input"
+                                placeholder="Pin"
+                                bind:value={user.pin}
+                            />
+                        </div>
+                        <div class="field">
+                            <label class="label">User Type</label>
                             <div class="select" placeholder="User Type">
-                                <select>
-                                  <option>admin</option>
-                                  <option>user</option>
+                                <select bind:value={user.userType}>
+                                    <option>admin</option>
+                                    <option>user</option>
                                 </select>
-                              </div>
+                            </div>
                         </div>
                         <div class="field">
                             <label class="label">Password</label>
-                            <input class="input" type="password" placeholder="Password"></div>
-                        <button class="button is-primary">Create User</button>
-                        <button class="button is-danger">Clear</button>
+                            <input
+                                class="input"
+                                type="password"
+                                placeholder="Password"
+                                bind:value={user.password}
+                            />
+                        </div>
+                        <button class="button is-primary" on:click={createUser}>Create User</button>
+                        <button class="button is-danger" on:click={clear}>Clear</button>
                     </div>
                 </div>
-
             </div>
         </div>
-        
     </section>
 </main>
