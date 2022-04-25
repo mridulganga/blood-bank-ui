@@ -1,22 +1,26 @@
 <script>
     import Nav from "../Nav.svelte";
 
+    let isLoading = true;
     let users = [];
     let user = {};
 
-    fetch("https://demo-blood-bank-app.herokuapp.com/getAllUsers")
+    async function loadUsers(){
+        isLoading = true
+        await fetch("https://demo-blood-bank-app.herokuapp.com/getAllUsers")
         .then((response) => response.json())
         .then(data => {users = data; console.log(data)})
         .catch((error) => {
             console.log(error);
         });
+        isLoading = false
+    }
+
+    loadUsers();
 
 
-    async function createUser(){
-        console.log("creating new user")
-        console.log(user)
-
-        
+    async function createUser(){    
+        isLoading = true
 		const res = await fetch('https://demo-blood-bank-app.herokuapp.com/registerUser', {
 			method: 'POST',
 			body: JSON.stringify(user),
@@ -24,6 +28,17 @@
 		})
 
 		clear()
+        loadUsers()
+        isLoading = false
+    }
+
+    async function deleteUser(id){
+        isLoading = true
+        await fetch('https://demo-blood-bank-app.herokuapp.com/deleteUser/' + id, {
+            method: 'DELETE',
+        })
+        loadUsers()
+        isLoading = false
     }
 
     function clear(){
@@ -36,7 +51,9 @@
     <Nav />
     <section class="section">
         <div class="container">
-            <h1 class="title">List Users</h1>
+            <h1 class="title">List Users {#if isLoading}
+                (Loading...)
+            {/if}</h1>
             <p class="subtitle">List of users</p>
         </div>
     </section>
@@ -65,7 +82,10 @@
                             <td>{u.houseNo}, {u.street}, {u.city}, {u.pin}</td>
                             <td>{u.userType}</td>
                             <td>
-                                <button class="button is-danger">delete</button>
+                                <button 
+                                    class="button is-danger"
+                                    on:click={()=>{deleteUser(u.userId)}}
+                                >delete</button>
                             </td>
                         </tr>
                         {/each}
